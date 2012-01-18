@@ -2,8 +2,9 @@
 // --------------------------
 
 // Modell
-int freierPlatz    = -1;          // Alle Werte >-1 geben eine Geschwindigkeit an
-int ring[]         = new int[36];
+int FREI           = -1;          // Alle Werte >-1 geben eine Geschwindigkeit an
+int MAXSPEED       = 10;
+int ring[]         = new int[16];
 
 // Aussehen
 int kreisradius    = 250;
@@ -19,14 +20,14 @@ void setup()
     stroke(255, 255, 255);
     strokeWeight(4);
     smooth();
-    frameRate(5);
-
+    frameRate(2);
+    
     // Ring mit Autos befüllen
     for (int i = 0; i < ring.length; i++)
     {
         // Generiert mehr leere Plätze als Autos        
-        // ring[i] = (int(random(100)) == 0) ? 1 : freierPlatz;
-        ring[i] = (i == 1 || i == 3 || i == 5) ? 1 : freierPlatz;
+        // ring[i] = (int(random(100)) == 0) ? 1 : FREI;
+        ring[i] = (i == 1 || i == 3 || i == 5) ? 1 : FREI;
     }
 }
 
@@ -35,12 +36,19 @@ void update()
 {
     for (int i = 0; i < ring.length; i++)
     {
-        if (ring[i] != freierPlatz)
+        if (ring[i] != FREI)
         {
-            int neuerPlatz   = weiter(i, 1);
+            // 1. Beschleunigen
+            
+            // 2. Bremsen
+            
+            // 3. Trödeln
+            
+            // 4. Fahrzeuge fortbewegen
+            int neuerPlatz   = naechstePos(i, ring[i]);
             ring[neuerPlatz] = ring[i];
-            ring[i]          = freierPlatz;
-            i = (neuerPlatz < i) ? i : neuerPlatz;
+            ring[i]          = FREI;
+            i                = (neuerPlatz < i) ? i : neuerPlatz;
         }
     }
 }
@@ -51,7 +59,7 @@ void draw()
     background(0, 0, 0);
     for (int i = 0; i < ring.length; i++)
     {
-        if (ring[i] != freierPlatz)
+        if (ring[i] != FREI)
         {
             float winkel = winkelDerPosition(i);
             point(kreisradius * (1.0 + cos(winkel)) + rand, 
@@ -69,8 +77,13 @@ float winkelDerPosition(int p)
 }
 
 
-int weiter(int pos, int delta)
+int naechstePos(int pos, int delta)
 {
     return (pos + delta > ring.length - 1) ? delta - (ring.length - pos) : pos + delta;
+}
+
+void fortbewegen()
+{
+
 }
 
