@@ -1,89 +1,62 @@
-// Nagel-Schreckenberg Modell
-// --------------------------
 
-// Modell
-int FREI           = -1;          // Alle Werte >-1 geben eine Geschwindigkeit an
-int MAXSPEED       = 10;
-int ring[]         = new int[16];
+// Stausimulation nach Nagel-Schreckenberg
+// ---------------------------------------
 
-// Aussehen
-int kreisradius    = 250;
-int rand           = 20;
-int fenstergroesse = 2 * kreisradius + 2 * rand;
+// Globale Variablen fürs Modell
+float CONST_P        = 0.15;   // Wahrscheinlichkeit fürs Trödeln
+float MAXSPEED       = 1.0;    // Höchstgeschwindigkeit der Autos
+int   FAHRBAHN       = 100;    // Anzahl der 7,5m Segmente
+int   AUTOS          = 20;     // Anzahl der Autos
+
+// Einstellungen für das Aussehen
+int   kreisradius    = 250;
+int   rand           = 20;
+int   fenstergroesse = 2 * (kreisradius + rand);
+color langsam        = color(0, 0, 255);
+color schnell        = color(255, 0, 0);
+
+// Sonstiges
+Auto  auto[] = new Auto[AUTOS];
 
 
 void setup()
 {
-    // Fenstereigenschaften
+    // Das Sketchfenster anpassen
     background(0, 0, 0);
     size(fenstergroesse, fenstergroesse);
-    stroke(255, 255, 255);
-    strokeWeight(4);
     smooth();
-    frameRate(2);
-    
+
     // Ring mit Autos befüllen
-    for (int i = 0; i < ring.length; i++)
+    for (int i = 0; i < AUTOS; i++)
     {
-        // Generiert mehr leere Plätze als Autos        
-        // ring[i] = (int(random(100)) == 0) ? 1 : FREI;
-        ring[i] = (i == 1 || i == 3 || i == 5) ? 1 : FREI;
-    }
-}
-
-
-void update()
-{
-    for (int i = 0; i < ring.length; i++)
-    {
-        if (ring[i] != FREI)
-        {
-            // 1. Beschleunigen
-            
-            // 2. Bremsen
-            
-            // 3. Trödeln
-            
-            // 4. Fahrzeuge fortbewegen
-            int neuerPlatz   = naechstePos(i, ring[i]);
-            ring[neuerPlatz] = ring[i];
-            ring[i]          = FREI;
-            i                = (neuerPlatz < i) ? i : neuerPlatz;
-        }
+        auto[i] = new Auto(i);
     }
 }
 
 
 void draw()
 {
-    background(0, 0, 0);
-    for (int i = 0; i < ring.length; i++)
+    for (int i = 0; i < AUTOS; i++)
     {
-        if (ring[i] != FREI)
-        {
-            float winkel = winkelDerPosition(i);
-            point(kreisradius * (1.0 + cos(winkel)) + rand, 
-            kreisradius * (1.0 + sin(winkel)) + rand);
-        }
+        // 1. Beschleunigen
+        auto[i].vel = constrain(auto[i].vel + 0.001, 0.0, MAXSPEED);
+       
+        // 2. Kollisionsfreiheit
+        
+        // 3. Trödeln
+        
+        // 4. Fahren
+        auto[i].fahren();
+        
     }
-
-    update();
+    
+    background(0, 0, 0);
+    for (int i = 0; i < AUTOS; i++)
+    {
+        stroke(lerpColor(langsam, schnell, map(auto[i].vel, 0, MAXSPEED, 0, 1)));
+        strokeWeight(3);
+        float winkel = auto[i].pos * (TWO_PI / FAHRBAHN);
+        point(kreisradius * (1.0 + cos(winkel)) + rand, 
+              kreisradius * (1.0 + sin(winkel)) + rand);
+    }
 }
-
-
-float winkelDerPosition(int p)
-{
-    return radians(p * (360.0 / ring.length));
-}
-
-
-int naechstePos(int pos, int delta)
-{
-    return (pos + delta > ring.length - 1) ? delta - (ring.length - pos) : pos + delta;
-}
-
-void fortbewegen()
-{
-
-}
-
